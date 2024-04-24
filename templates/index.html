@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Video Streaming</title>
+    <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+          <svg class="bi me-2" width="40" height="32"><use xlink:href="#bootstrap"></use></svg>
+          <span class="fs-4">Проект</span>
+        </a>
+  
+        <ul class="nav nav-pills">
+          <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Главная страничка</a></li>
+          <li class="nav-item"><a href="/stage_counter" class="nav-link">Результаты</a></li>
+          <li class="nav-item"><a href="/video" class="nav-link">Видео</a></li>
+          <li class="nav-item"><a href="/about" class="nav-link">Про нас</a></li>
+        </ul>
+      </header>
+</head>
+<body>
+    <div class="container d-flex flex-column align-items-center justify-content-center" style="height: 100vh;">
+        <img id="videoStream" src="{{ url_for('video') }}" width="640" height="480" class="mb-3">
+        <div class="d-flex justify-content-center mb-3">
+            <button id="connectCamera" class="btn btn-primary me-2">Подключить камеру</button>
+            <button id="disconnectCamera" class="btn btn-danger">Отключить камеру</button>
+        </div>
+        <div id="stage"></div>
+        <div id="counter"></div>
+    </div>
+
+    <script>
+        var videoStreamElement = document.getElementById('videoStream');
+        var stageElement = document.getElementById('stage');
+        var counterElement = document.getElementById('counter');
+
+        var eventSource = new EventSource('/stage_counter');
+        eventSource.onmessage = function(event) {
+            var data = JSON.parse(event.data);
+            stageElement.innerText = 'Состояние: ' + data.stage;
+            counterElement.innerText = 'Повторения: ' + data.counter;
+        };
+
+        document.getElementById('connectCamera').addEventListener('click', function() {
+    // Отправляем запрос на сервер для начала видеопотока
+        fetch('/connect_camera', {method: 'POST'})
+            .then(response => response.text())
+            .then(data => console.log(data));
+            });
+
+        document.getElementById('disconnectCamera').addEventListener('click', function() {
+            // Отправляем запрос на сервер для остановки видеопотока
+            fetch('/disconnect_camera', {method: 'POST'})
+                .then(response => response.text())
+                .then(data => console.log(data));
+            });
+    </script>
+    <footer>
+        <div class="d-flex flex-column flex-sm-row justify-content-between py-4 my-4 border-top">
+            <p>© 2024 Разработка веб приложения. Все права защищены</p>
+            <ul class="list-unstyled d-flex">
+              <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#twitter"></use></svg></a></li>
+              <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#instagram"></use></svg></a></li>
+              <li class="ms-3"><a class="link-body-emphasis" href="#"><svg class="bi" width="24" height="24"><use xlink:href="#facebook"></use></svg></a></li>
+            </ul>
+          </div>
+    </footer>
+</body>
+</html>
